@@ -20,11 +20,14 @@ def step_impl(context):
     for row in context.table:
         context.todo_list.add_task(row['Task'], 'Sample description', '2024-08-01')
 
+@when('the user lists all tasks')
+def step_impl(context):
+    context.tasks = context.todo_list.list_tasks()
+
 @then('the output should contain')
 def step_impl(context):
-    tasks = context.todo_list.list_tasks()
     for row in context.table:
-        assert any(row['Tasks'] in task for task in tasks), f'Task "{row["Tasks"]}" not found in the list.'
+        assert any(row['Tasks'] in task for task in context.tasks), f'Task "{row["Tasks"]}" not found in the list.'
 
 @when('the user marks task "{title}" as completed')
 def step_impl(context, title):
@@ -45,3 +48,12 @@ def step_impl(context, title):
 def step_impl(context, title):
     tasks = context.todo_list.list_tasks()
     assert not any(title in task for task in tasks), f'Task "{title}" is still in the list.'
+
+@when('the user clears the to-do list')
+def step_impl(context):
+    context.todo_list.clear_tasks()
+
+@then('the to-do list should be empty')
+def step_impl(context):
+    tasks = context.todo_list.list_tasks()
+    assert not tasks, "The to-do list is not empty."
